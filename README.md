@@ -1,13 +1,10 @@
 # xtream-probe
 
-I made this for myself because I kept getting lists of Xtream Codes servers
-and didn't want to check them one by one. 
+Check Xtream Codes servers against one login. 
 
-It takes one username and password and checks them against each server in a
-list by hitting `player_api.php`. It tells me which ones are up and working,
-which ones reject the login, and which ones are dead. The working ones get
-saved to a file so I can use them right away. No extra dependencies, just
-Python.
+```bash
+python3 xstream_probe.py --username user --password pass
+```
 
 ## Requirements
 
@@ -46,18 +43,6 @@ options:
   --help                 show the full help text
 ```
 
-### Passing credentials safely
-
-Passing a password on the command line can expose it in your shell history and
-process list. Two safer options are available:
-
-```bash
-# Read credentials from environment variables
-export XSTREAM_USERNAME="your_user"
-export XSTREAM_PASSWORD="your_pass"
-python3 xstream_probe.py
-```
-
 ```bash
 # Omit --password and the script prompts without echoing it
 python3 xstream_probe.py --username your_user
@@ -82,33 +67,6 @@ python3 xstream_probe.py \
   --username user --password pass \
   --output reports/working.txt
 ```
-
-## Input formats
-
-### Plain text (`.txt`)
-
-One base URL per line. Blank lines and lines starting with `#` are ignored.
-
-```text
-# mirrors
-http://mirror-one.example.com:8080
-https://mirror-two.example.net
-```
-
-### CSV (`.csv`)
-
-The first column is treated as the base URL. A header row such as `URL` is
-skipped, and quoted values are supported.
-
-```csv
-URL,notes
-http://mirror-one.example.com:8080,primary
-http://mirror-two.example.net,backup
-```
-
-URLs are trimmed, have surrounding quotes and trailing slashes removed, and are
-deduplicated (host names are compared case-insensitively). Invalid or non-HTTP
-URLs are reported on stderr and skipped.
 
 ## Output and statuses
 
@@ -139,23 +97,6 @@ Only `[OK]` URLs are written to the output file, one per line, deduplicated.
 | `2` | Invalid usage, missing input file, or empty URL list |
 | `130` | Interrupted with Ctrl+C |
 
-## Running the tests
-
-The tests use mocked HTTP responses and do not contact any servers.
-
-```bash
-python3 -m pip install -r requirements-dev.txt
-python3 -m pytest
-```
-
-Or, without installing anything globally:
-
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest
-```
-
 ## Project layout
 
 ```text
@@ -172,22 +113,6 @@ xstream_probe/
 │   ├── conftest.py
 │   └── test_xstream_probe.py
 └── working_urls.csv          # generated output (not source)
-```
-
-## Sending this to a friend
-
-The project is self-contained. Share the whole folder, or create an archive
-without generated files and caches:
-
-```bash
-zip -r xstream_probe.zip . \
-  -x ".venv/*" "*/__pycache__/*" "*.pyc" ".pytest_cache/*" "working_urls.csv"
-```
-
-Your friend only needs Python 3.9+ and their own credentials:
-
-```bash
-python3 xstream_probe.py --username THEIR_USER --password THEIR_PASS
 ```
 
 ## Notes and limitations
